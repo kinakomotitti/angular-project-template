@@ -4,9 +4,9 @@ services:
     build: ./docker-images/my-angular-image
     container_name: angular-setup
     command: > 
-      /bin/bash -c 
+      /bin/bash -c "
       echo start create new app &&
-      ech ng new ${ANGULAR_APP_NAME} --routing true --skip-git --style scss &&
+      if [ ${SKIP_GENERATE_APP} = false ];then ng new ${ANGULAR_APP_NAME} --routing true --skip-git --style scss;fi &&
       echo install pacakges &&
       cd ${ANGULAR_APP_NAME} && 
       ng add @angular-eslint/schematics --skip-confirmation &&
@@ -44,6 +44,9 @@ services:
   sample-api:
     build: ./docker-images/sample-api
     container_name: sample-api
+    depends_on:
+      build:
+        condition: service_completed_successfully
     command: > 
       /bin/bash -c "
       json-server --watch db.json --port 3000 -H 0.0.0.0
